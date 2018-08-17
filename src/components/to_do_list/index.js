@@ -3,6 +3,7 @@ import axios from 'axios';
 import Item from './item';
 import Input from './input';
 import './list.css';
+import { formatPostData } from '../../helpers';
 
 class ToDoList extends Component {
     constructor(props) {
@@ -24,13 +25,17 @@ class ToDoList extends Component {
         this.deleteItem = this.deleteItem.bind(this);
     }
 
-    componentWillMount() {
-        this.getListData();
+    async componentWillMount() {
+       this.getListData();
     }
 
     async getListData() {
         // Use get request to get list data
-        const response = { data: {}}; // Remove
+    const response = await axios.get('/api/todos.php?action=get_all_todos', {
+        params: {
+            action: 'get_all_todos'
+        }
+    });
 
         const { message, listItems } = response.data;
 
@@ -60,7 +65,15 @@ class ToDoList extends Component {
         e.preventDefault();
         // Item @ this.state.newItem
         // Use post method to send new item to DB
-        const response = {data: {success: true}}; // Remove
+        const dataToSend = formatPostData(this.state.newItem);
+
+        const response = await axios.post('/api/todos.php', dataToSend, {
+            params: {
+                action: 'add_item'
+            }
+        });
+
+        //const response = {data: {success: true}}; // Remove
 
         const { errors, success } = response.data;
 
